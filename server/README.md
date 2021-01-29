@@ -65,6 +65,10 @@ Where
 
 This method also accepts filters in the form of query parameters `description` and `done`.
 
+#### Pagination
+
+Using query parameters `limit` (20 by default) and `offset` (along with other fields like `hasNextPage` and others described above) one can implement pagination.
+
 ### Create new todo
 
 ```
