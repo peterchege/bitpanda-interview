@@ -1,20 +1,16 @@
 <template lang="pug">
   #app.todo-app
-    div {{ message }}
+    TodoPage
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
 
+import TodoPage from './views/TodoPage.vue'
+
 export default defineComponent({
   name: 'App',
-  setup() {
-    // utilise todo-bitpanda-server to get data
-
-    return {
-      message: 'Todo list should be here',
-    };
-  },
+  components: { TodoPage }
 });
 </script>
 
