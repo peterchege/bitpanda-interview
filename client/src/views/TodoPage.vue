@@ -7,26 +7,47 @@
         button(@click="clearSearch")
           img.close-icon(src="@/assets/img/icon-cross.svg")
       .todo
-        .add-todo_bottom-round
+        .todo_bottom-round
         input.todo__input(
           v-model="newTodoDescription"
           type="text"
           placeholder="Take a note"
-          @keyup.enter="addTodoTask"
+          @keyup.enter="createTodoTask"
         )
-        button(@click="addTodoTask")
+        button(@click="onCreateNewTodo")
           img(src="@/assets/img/icon-plus.svg")
-</template>
+      .todo-list
+        ul
+          li peter chege
+          li peter chege
+          li peter chege
+          li peter chege
+          li peter chege
+          li peter chege
+      .pagination
+        .pagination__button
+          img.pagination__img(
+            :class="{'pagination__img--disable': !hasPrevPage}",
+            @click="getPrevPage"
+            src="@/assets/img/icon-left-arrow.svg",
+            alt="arrow left",
+            )
+          span.pagination__divider
+          img.pagination__img(
+            :class="{'pagination__img--disable': !hasNextPage}",
+            @click="getNextPage"
+            src="@/assets/img/icon-right-arrow.svg",
+            alt="arrow right",
+            )
 
+</template>
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
-
 export default defineComponent({
   name: 'App',
   setup() {
     // utilise todo-bitpanda-server to get data
-
   },
 });
 </script>
@@ -37,7 +58,7 @@ export default defineComponent({
   .container {
       width: 100%;
       max-width: 600px;
-      margin:  10% auto;
+      margin:  5% auto;
       padding: var(--space-xxl);
     }
 
@@ -46,7 +67,7 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--space-l);
-    padding: var(--space-xl);
+    padding: var(--space-xs);
     background-color: var(--color-grey-2);
     border-radius: var(--space-m);
     .search-bar__input {
@@ -57,8 +78,8 @@ export default defineComponent({
       }
     }
   }
-  
-    .todo {
+
+  .todo {
     display: flex;
     padding: var(--space-l) var(--space-xl);
     background-color: var(--color-grey-1);
@@ -81,6 +102,37 @@ export default defineComponent({
     border-top: none;
     }
   }
- 
-
+  
+  .pagination {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  &__button {
+    width: 4.5rem;
+    margin-top: var(--space-l);
+    padding: var(--space-xs);
+    display: flex;
+    justify-content: flex-end;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 0 0 var(--space-m) var(--space-m);
+    border-bottom: 1px solid var(--color-grey-3);
+    font-size: var(--space-xl);
+    color: var(--color-grey-5);
+    background-color: var(--color-grey-1);
+  }
+  &__divider {
+    width: 0;
+    height: var(--space-xl);
+    border-right: 2px solid get-color-opacity(var(--color-grey-5), 0.6);
+  }
+  &__img {
+    cursor: pointer;
+    &--disable {
+      opacity: 0.5;
+      cursor: not-allowed;
+      }
+    }
+  }
 </style>
