@@ -1,29 +1,12 @@
 <template lang="pug">
     .container
       .search-bar
-        button(@click="fetchQuery")
+        button(@click="")
           img(src="@/assets/img/icon-search.svg")
         input.search-bar__input(placeholder="Search")
-        button(@click="clearSearch")
+        button(@click="")
           img.close-icon(src="@/assets/img/icon-cross.svg")
-      .todo
-        .todo_bottom-round
-        input.todo__input(
-          v-model="newTodoDescription"
-          type="text"
-          placeholder="Take a note"
-          @keyup.enter="createTodoTask"
-        )
-        button(@click="onCreateNewTodo")
-          img(src="@/assets/img/icon-plus.svg")
-      .todo-list
-        ul
-          li peter chege
-          li peter chege
-          li peter chege
-          li peter chege
-          li peter chege
-          li peter chege
+      todo-app(@add-todo= 'createTodo($event)')
       .pagination
         .pagination__button
           img.pagination__img(
@@ -44,8 +27,12 @@
 
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
+
+import TodoApp from '../components/TodoApp.vue';
+
 export default defineComponent({
-  name: 'App',
+  name: 'Todo Page',
+  components: { 'todo-app': TodoApp, }
   setup() {
     // utilise todo-bitpanda-server to get data
   },
@@ -76,30 +63,6 @@ export default defineComponent({
       &::placeholder {
         color: var(--color-grey-5);
       }
-    }
-  }
-
-  .todo {
-    display: flex;
-    padding: var(--space-l) var(--space-xl);
-    background-color: var(--color-grey-1);
-    border-radius: var(--space-m) var(--space-m) 0 0;
-    border: 1px solid var(--color-grey-3);
-    &.todo_bottom-round {
-      border-radius: var(--space-m);
-    }
-    .todo__input {
-      width: 100%;
-      &::placeholder {
-        color: var(--color-grey-4);
-      }
-    }
-    .todos-list {
-    margin-bottom: var(--space-l);
-    background-color: var(--color-white);
-    border-radius: 0 0 var(--space-m) var(--space-m);
-    border: 1px solid var(--color-grey-3);
-    border-top: none;
     }
   }
   
