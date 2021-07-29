@@ -10,8 +10,7 @@ import { defineComponent } from '@vue/composition-api';
 import AddTodo from './AddTodo.vue';
 
 export default defineComponent({
-  name: 'Todo App',
+  name: 'todo-app',
   components: { 'add-todo': AddTodo,}
 });
 </script>
-

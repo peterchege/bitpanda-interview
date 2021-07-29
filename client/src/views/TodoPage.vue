@@ -26,16 +26,35 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent , ref } from '@vue/composition-api';
 
 import TodoApp from '../components/TodoApp.vue';
+import { Todo } from '../types/Todo';
+import { createTodo } from '../services/EventServices'
 
 export default defineComponent({
-  name: 'Todo Page',
+  name: 'App',
   components: { 'todo-app': TodoApp, }
   setup() {
-    // utilise todo-bitpanda-server to get data
+    const todosList = ref<Todo[]>([]);
+
+  return {
+      todosList,
+    };
   },
+
+  methods: {
+    async createTodo(description: string){
+      try {
+        const createTodoTask = await createTodo(description);
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    },
+  }
+
+  
 });
 </script>
 
@@ -57,20 +76,23 @@ export default defineComponent({
     padding: var(--space-xs);
     background-color: var(--color-grey-2);
     border-radius: var(--space-m);
+
     .search-bar__input {
       font-weight: 400;
       width: 100%;
+
       &::placeholder {
         color: var(--color-grey-5);
       }
     }
   }
-  
+
   .pagination {
     width: 100%;
     display: flex;
     justify-content: flex-end;
     align-items: center;
+
   &__button {
     width: 4.5rem;
     margin-top: var(--space-l);
@@ -85,13 +107,16 @@ export default defineComponent({
     color: var(--color-grey-5);
     background-color: var(--color-grey-1);
   }
+
   &__divider {
     width: 0;
     height: var(--space-xl);
     border-right: 2px solid get-color-opacity(var(--color-grey-5), 0.6);
   }
+
   &__img {
     cursor: pointer;
+
     &--disable {
       opacity: 0.5;
       cursor: not-allowed;
