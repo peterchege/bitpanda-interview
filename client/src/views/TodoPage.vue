@@ -1,29 +1,12 @@
 <template lang="pug">
     .container
       .search-bar
-        button(@click="fetchQuery")
+        button(@click="")
           img(src="@/assets/img/icon-search.svg")
         input.search-bar__input(placeholder="Search")
-        button(@click="clearSearch")
+        button(@click="")
           img.close-icon(src="@/assets/img/icon-cross.svg")
-      .todo
-        .todo_bottom-round
-        input.todo__input(
-          v-model="newTodoDescription"
-          type="text"
-          placeholder="Take a note"
-          @keyup.enter="createTodoTask"
-        )
-        button(@click="onCreateNewTodo")
-          img(src="@/assets/img/icon-plus.svg")
-      .todo-list
-        ul
-          li peter chege
-          li peter chege
-          li peter chege
-          li peter chege
-          li peter chege
-          li peter chege
+      todo-app(@add-todo= 'createTodo($event)')
       .pagination
         .pagination__button
           img.pagination__img(
@@ -43,12 +26,35 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent , ref } from '@vue/composition-api';
+
+import TodoApp from '../components/TodoApp.vue';
+import { Todo } from '../types/Todo';
+import { createTodo } from '../services/EventServices'
+
 export default defineComponent({
   name: 'App',
+  components: { 'todo-app': TodoApp, }
   setup() {
-    // utilise todo-bitpanda-server to get data
+    const todosList = ref<Todo[]>([]);
+
+  return {
+      todosList,
+    };
   },
+
+  methods: {
+    async createTodo(description: string){
+      try {
+        const createTodoTask = await createTodo(description);
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    },
+  }
+
+  
 });
 </script>
 
@@ -70,44 +76,23 @@ export default defineComponent({
     padding: var(--space-xs);
     background-color: var(--color-grey-2);
     border-radius: var(--space-m);
+
     .search-bar__input {
       font-weight: 400;
       width: 100%;
+
       &::placeholder {
         color: var(--color-grey-5);
       }
     }
   }
 
-  .todo {
-    display: flex;
-    padding: var(--space-l) var(--space-xl);
-    background-color: var(--color-grey-1);
-    border-radius: var(--space-m) var(--space-m) 0 0;
-    border: 1px solid var(--color-grey-3);
-    &.todo_bottom-round {
-      border-radius: var(--space-m);
-    }
-    .todo__input {
-      width: 100%;
-      &::placeholder {
-        color: var(--color-grey-4);
-      }
-    }
-    .todos-list {
-    margin-bottom: var(--space-l);
-    background-color: var(--color-white);
-    border-radius: 0 0 var(--space-m) var(--space-m);
-    border: 1px solid var(--color-grey-3);
-    border-top: none;
-    }
-  }
-  
   .pagination {
     width: 100%;
     display: flex;
     justify-content: flex-end;
     align-items: center;
+
   &__button {
     width: 4.5rem;
     margin-top: var(--space-l);
@@ -122,13 +107,16 @@ export default defineComponent({
     color: var(--color-grey-5);
     background-color: var(--color-grey-1);
   }
+
   &__divider {
     width: 0;
     height: var(--space-xl);
     border-right: 2px solid get-color-opacity(var(--color-grey-5), 0.6);
   }
+
   &__img {
     cursor: pointer;
+
     &--disable {
       opacity: 0.5;
       cursor: not-allowed;
