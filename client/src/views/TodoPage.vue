@@ -6,19 +6,16 @@
         input.search-bar__input(placeholder="Search")
         button(@click="")
           img.close-icon(src="@/assets/img/icon-cross.svg")
-      todo-app(@add-todo= 'createTodo($event)')
+      todo-app(:todosList='todosList',
+               @add-todo='createTodo($event)')
       .pagination
         .pagination__button
           img.pagination__img(
-            :class="{'pagination__img--disable': !hasPrevPage}",
-            @click="getPrevPage"
             src="@/assets/img/icon-left-arrow.svg",
             alt="arrow left",
             )
           span.pagination__divider
           img.pagination__img(
-            :class="{'pagination__img--disable': !hasNextPage}",
-            @click="getNextPage"
             src="@/assets/img/icon-right-arrow.svg",
             alt="arrow right",
             )
@@ -26,35 +23,48 @@
 </template>
 
 <script lang="ts">
-import { defineComponent , ref } from '@vue/composition-api';
+import { defineComponent, ref } from '@vue/composition-api';
 
 import TodoApp from '../components/TodoApp.vue';
+import { createTodo, getAllTodos } from '../services/EventServices';
 import { Todo } from '../types/Todo';
-import { createTodo } from '../services/EventServices'
 
 export default defineComponent({
   name: 'App',
-  components: { 'todo-app': TodoApp, }
+  components: { 'todo-app': TodoApp },
   setup() {
     const todosList = ref<Todo[]>([]);
 
-  return {
+    const getTodos = async (offset = 0, limit = 5, description?: string) => {
+      const response = await getAllTodos({ offset, limit, description });
+
+      todosList.value = response.items;
+      console.log(response);
+    };
+
+    return {
       todosList,
+      getTodos,
     };
   },
 
+  mounted() {
+    this.getTodos().catch((e) => { console.error(e); });
+  },
+
   methods: {
-    async createTodo(description: string){
+    async createTodo(description: string) {
       try {
         const createTodoTask = await createTodo(description);
+
+        this.todosList.push(createTodoTask);
       } catch (e) {
         console.error(e);
         return false;
       }
     },
-  }
+  },
 
-  
 });
 </script>
 
