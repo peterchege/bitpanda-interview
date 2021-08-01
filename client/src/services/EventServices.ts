@@ -38,3 +38,13 @@ export function getAllTodos(options: GetAllTodosOptions): Promise<GetAllTodosRes
 
   return fetch(url.toString()).then((res) => res.json()) as Promise<GetAllTodosResponse>;
 }
+
+export function updateTodo(todo: Todo): Promise<Todo> {
+  const url = new URL(`${baseURL}/todo/${todo._id}`);
+
+  return fetch(url.toString(), {
+    method: 'PUT',
+    body: JSON.stringify(todo),
+    headers: new Headers({ 'Content-type': 'application/json' }),
+  }).then((res) => res.json()) as Promise<Todo>;
+}

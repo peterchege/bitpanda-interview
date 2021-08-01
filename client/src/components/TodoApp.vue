@@ -6,6 +6,7 @@
             v-for='todo in todosList',
             :key='todo._id',
             :todo='todo',
+            @update-todo='$emit("update-todo", $event)',
           ) {{ todo.description }}
 </template>
 

@@ -1,9 +1,7 @@
 <template lang="pug">
-    button.checkbox
-        span.checkbox_checkmark(
-            src="@/assets/img/icon-tick.svg"
-            )
-
+    button.checkbox(@click='$emit("update", !checked)')
+        span.checkbox_marked(v-if='checked')
+          img(src="@/assets/img/icon-tick.svg")
 </template>
 
 <script>

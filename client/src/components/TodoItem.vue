@@ -1,6 +1,9 @@
 <template lang="pug">
-  li.todo-item
-    checkbox.todo-item_checkbox
+  li.todo-item(:class='markAsDone')
+    checkbox.todo-item_checkbox(
+      :checked='todo.done',
+      @update='updateCompleteTodoTask(todo)'
+    )
 
     p.todo-item_description {{ todo.description }}
     span.todo-item_created-at - {{ createdTime }} minutes
@@ -37,6 +40,12 @@ export default defineComponent({
   },
   components: {
     Checkbox,
+  },
+  methods: {
+    updateCompleteTodoTask(todo: Todo) {
+      todo.done = !todo.done;
+      this.$emit('update-todo', todo);
+    },
   },
 
 });
