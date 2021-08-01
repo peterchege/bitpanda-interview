@@ -8,6 +8,7 @@
           img.close-icon(src="@/assets/img/icon-cross.svg")
       todo-app(:todosList='todosList',
                @add-todo='createTodo($event)',
+               @delete-todo='deleteTodoTask($event)',
                @update-todo='updateCompleteTask($event)')
       .pagination
         .pagination__button
@@ -27,7 +28,9 @@
 import { defineComponent, ref } from '@vue/composition-api';
 
 import TodoApp from '../components/TodoApp.vue';
-import { createTodo, getAllTodos, updateTodo } from '../services/EventServices';
+import {
+  createTodo, getAllTodos, updateTodo, deleteTodoItem,
+} from '../services/EventServices';
 import { Todo } from '../types/Todo';
 
 export default defineComponent({
@@ -67,6 +70,14 @@ export default defineComponent({
     async updateCompleteTask(todo: Todo) {
       try {
         await updateTodo(todo);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async deleteTodoTask(todo: Todo) {
+      try {
+        await deleteTodoItem(todo);
+        this.todosList = this.todosList.filter((t) => t._id !== todo._id);
       } catch (e) {
         console.error(e);
       }

@@ -8,6 +8,9 @@
     p.todo-item_description {{ todo.description }}
     span.todo-item_created-at - {{ createdTime }} minutes
 
+    span.todo-item_deleteTodo(@click='$emit("delete", todo)')
+      img(src="@/assets/img/icon-cross.svg")
+
 </template>
 
 <script lang="ts">
@@ -67,6 +70,16 @@ export default defineComponent({
     padding: 10px ;
     word-break: break-all;
 
+  }
+  &_deleteTodo {
+    margin: 0 10px 0 auto;
+    padding: var(--space-s) var(--space-m);
+    cursor: pointer;
+    opacity: 0;
+  }
+
+  &:hover &_deleteTodo {
+    opacity: 1;
   }
 
   &_checkbox {

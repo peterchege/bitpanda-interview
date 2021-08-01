@@ -48,3 +48,18 @@ export function updateTodo(todo: Todo): Promise<Todo> {
     headers: new Headers({ 'Content-type': 'application/json' }),
   }).then((res) => res.json()) as Promise<Todo>;
 }
+
+export async function deleteTodoItem(todo: Todo): Promise<boolean> {
+  const url = new URL(`${baseURL}/todo/${todo._id}`);
+  let response;
+
+  try {
+    response = await fetch(url.toString(), {
+      method: 'DELETE',
+    });
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
+  return response.ok;
+}
