@@ -54,14 +54,6 @@ export default defineComponent({
       }
     }
 
-    .todos-list {
-    margin-bottom: var(--space-l);
-    background-color: var(--color-white);
-    border-radius: 0 0 var(--space-m) var(--space-m);
-    border: 1px solid var(--color-grey-3);
-    border-top: none;
-    }
   }
 
- 
 </style>

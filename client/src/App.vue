@@ -6,11 +6,11 @@
 <script lang="ts">
 import { defineComponent } from '@vue/composition-api';
 
-import TodoPage from './views/TodoPage.vue'
+import TodoPage from './views/TodoPage.vue';
 
 export default defineComponent({
   name: 'App',
-  components: { TodoPage }
+  components: { TodoPage },
 });
 </script>
 

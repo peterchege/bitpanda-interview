@@ -1,60 +1,112 @@
 <template lang="pug">
     .container
       .search-bar
-        button(@click="")
-          img(src="@/assets/img/icon-search.svg")
-        input.search-bar__input(placeholder="Search")
-        button(@click="")
+        img(src="@/assets/img/icon-search.svg")
+        input.search-bar__input(
+          type='text',
+          v-model='fetchSearchQuery',
+          placeholder='Search')
+        button(
+          @click="clearSearch",
+          :class="{ inactive: fetchSearchQuery === '' }")
           img.close-icon(src="@/assets/img/icon-cross.svg")
-      todo-app(@add-todo= 'createTodo($event)')
-      .pagination
-        .pagination__button
-          img.pagination__img(
-            :class="{'pagination__img--disable': !hasPrevPage}",
-            @click="getPrevPage"
-            src="@/assets/img/icon-left-arrow.svg",
-            alt="arrow left",
-            )
-          span.pagination__divider
-          img.pagination__img(
-            :class="{'pagination__img--disable': !hasNextPage}",
-            @click="getNextPage"
-            src="@/assets/img/icon-right-arrow.svg",
-            alt="arrow right",
-            )
+      todo-app(:todosList='todosList',
+               @add-todo='createTodo($event)',
+               @delete-todo='deleteTodoTask($event)',
+               @update-todo='updateCompleteTask($event)')
+      pagination-page(:pages='pages', @change='switchPage($event)')
 
 </template>
 
 <script lang="ts">
-import { defineComponent , ref } from '@vue/composition-api';
+import { defineComponent, ref, watch } from '@vue/composition-api';
 
 import TodoApp from '../components/TodoApp.vue';
+import PaginationPage from '../components/Pagination.vue';
+import {
+  createTodo, getAllTodos, updateTodo, deleteTodoItem,
+} from '../services/EventServices';
 import { Todo } from '../types/Todo';
-import { createTodo } from '../services/EventServices'
+import { Pagination } from '@/types/Pagination';
+
 
 export default defineComponent({
   name: 'App',
-  components: { 'todo-app': TodoApp, }
+  components: { 
+    'todo-app': TodoApp,
+    'pagination-page': PaginationPage },
   setup() {
     const todosList = ref<Todo[]>([]);
+    const pages = ref<Pagination>({} as Pagination);
+    const fetchSearchQuery = ref<string>('');
 
-  return {
+    const getTodos = async (offset = 0, limit = 5, description?: string) => {
+      const response = await getAllTodos({ offset, limit, description });
+
+      todosList.value = response.items;
+      pages.value = response.meta;
+      console.log(response);
+    };
+
+    let debouncetimeId: number;
+
+    watch(fetchSearchQuery, (newSearchQuery) => {
+      clearTimeout(debouncetimeId);
+      debouncetimeId = setTimeout(() => {
+        getTodos(0, undefined, newSearchQuery).catch((e) => console.error(e));
+      }, 300);
+    });
+
+    const clearSearch = () => {
+      fetchSearchQuery.value='';
+    }
+
+
+    return {
       todosList,
+      getTodos,
+      pages,
+      fetchSearchQuery,
+      clearSearch
+      
     };
   },
 
+  mounted() {
+    this.getTodos().catch((e) => { console.error(e); });
+  },
+
   methods: {
-    async createTodo(description: string){
+    async createTodo(description: string) {
       try {
         const createTodoTask = await createTodo(description);
+
+        this.todosList.push(createTodoTask);
       } catch (e) {
         console.error(e);
         return false;
       }
     },
-  }
+    async updateCompleteTask(todo: Todo) {
+      try {
+        await updateTodo(todo);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    async deleteTodoTask(todo: Todo) {
+      try {
+        await deleteTodoItem(todo);
+        this.todosList = this.todosList.filter((t) => t._id !== todo._id);
+      } catch (e) {
+        console.error(e);
+      }
+    },
+    switchPage(pagination: Pagination){
+      this.getTodos(pagination.offset, pagination.limit).catch((e) => console.error(e));
+    }
+  },
 
-  
 });
 </script>
 
@@ -73,54 +125,23 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--space-l);
-    padding: var(--space-xs);
+    padding: 0 var(--space-m);
     background-color: var(--color-grey-2);
     border-radius: var(--space-m);
 
     .search-bar__input {
-      font-weight: 400;
+      font-weight: 350;
       width: 100%;
+      padding: var(--space-xs) var(--space-s);
+      color: var(--color-grey-5);
 
       &::placeholder {
         color: var(--color-grey-5);
       }
     }
   }
-
-  .pagination {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-  &__button {
-    width: 4.5rem;
-    margin-top: var(--space-l);
-    padding: var(--space-xs);
-    display: flex;
-    justify-content: flex-end;
-    justify-content: space-around;
-    align-items: center;
-    border-radius: 0 0 var(--space-m) var(--space-m);
-    border-bottom: 1px solid var(--color-grey-3);
-    font-size: var(--space-xl);
-    color: var(--color-grey-5);
-    background-color: var(--color-grey-1);
-  }
-
-  &__divider {
-    width: 0;
-    height: var(--space-xl);
-    border-right: 2px solid get-color-opacity(var(--color-grey-5), 0.6);
-  }
-
-  &__img {
-    cursor: pointer;
-
-    &--disable {
-      opacity: 0.5;
-      cursor: not-allowed;
-      }
-    }
-  }
+  .inactive {
+  pointer-events: none;
+  opacity: .3;
+}
 </style>
