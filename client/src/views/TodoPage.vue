@@ -1,10 +1,14 @@
 <template lang="pug">
     .container
       .search-bar
-        button(@click="")
-          img(src="@/assets/img/icon-search.svg")
-        input.search-bar__input(placeholder="Search")
-        button(@click="")
+        img(src="@/assets/img/icon-search.svg")
+        input.search-bar__input(
+          type='text',
+          v-model='fetchSearchQuery',
+          placeholder='Search')
+        button(
+          @click="clearSearch",
+          :class="{ inactive: fetchSearchQuery === '' }")
           img.close-icon(src="@/assets/img/icon-cross.svg")
       todo-app(:todosList='todosList',
                @add-todo='createTodo($event)',
@@ -15,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@vue/composition-api';
+import { defineComponent, ref, watch } from '@vue/composition-api';
 
 import TodoApp from '../components/TodoApp.vue';
 import PaginationPage from '../components/Pagination.vue';
@@ -34,6 +38,7 @@ export default defineComponent({
   setup() {
     const todosList = ref<Todo[]>([]);
     const pages = ref<Pagination>({} as Pagination);
+    const fetchSearchQuery = ref<string>('');
 
     const getTodos = async (offset = 0, limit = 5, description?: string) => {
       const response = await getAllTodos({ offset, limit, description });
@@ -43,10 +48,27 @@ export default defineComponent({
       console.log(response);
     };
 
+    let debouncetimeId: number;
+
+    watch(fetchSearchQuery, (newSearchQuery) => {
+      clearTimeout(debouncetimeId);
+      debouncetimeId = setTimeout(() => {
+        getTodos(0, undefined, newSearchQuery).catch((e) => console.error(e));
+      }, 300);
+    });
+
+    const clearSearch = () => {
+      fetchSearchQuery.value='';
+    }
+
+
     return {
       todosList,
       getTodos,
-      pages
+      pages,
+      fetchSearchQuery,
+      clearSearch
+      
     };
   },
 
@@ -103,17 +125,23 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
     margin-bottom: var(--space-l);
-    padding: var(--space-xs);
+    padding: 0 var(--space-m);
     background-color: var(--color-grey-2);
     border-radius: var(--space-m);
 
     .search-bar__input {
-      font-weight: 400;
+      font-weight: 350;
       width: 100%;
+      padding: var(--space-xs) var(--space-s);
+      color: var(--color-grey-5);
 
       &::placeholder {
         color: var(--color-grey-5);
       }
     }
   }
+  .inactive {
+  pointer-events: none;
+  opacity: .3;
+}
 </style>
