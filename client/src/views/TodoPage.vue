@@ -21,6 +21,7 @@
 <script lang="ts">
 /* eslint-disable import/no-unresolved */
 /* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
 
 import {
   defineComponent, onMounted, ref, watch,

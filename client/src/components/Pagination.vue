@@ -27,20 +27,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from '@vue/composition-api';
+/* eslint-disable import/no-unresolved */
+
+import { defineComponent, PropType, toRefs } from '@vue/composition-api';
 
 import { Pagination } from '@/types/Pagination';
 
 export default defineComponent({
   name: 'Pagination',
   props: { pages: { type: Object as PropType<Pagination>, required: true } },
-  methods: {
-    switchPage(dir: number) {
-      const pages = { ...this.pages };
+  setup(props, { emit }) {
+    const { pages } = toRefs(props);
 
-      pages.offset += pages.limit * dir;
-      this.$emit('change', pages);
-    },
+    const switchPage = (dir:number) => {
+      const page = { ...pages.value };
+
+      page.offset += page.limit * dir;
+      return emit('change', page);
+    };
+
+    return {
+      switchPage,
+    };
   },
 
 });

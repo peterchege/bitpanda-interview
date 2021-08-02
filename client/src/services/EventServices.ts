@@ -1,5 +1,8 @@
-import { Pagination } from '../types/Pagination';
-import { Todo } from '../types/Todo';
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable import/no-unresolved */
+
+import { Pagination } from '@/types/Pagination';
+import { Todo } from '@/types/Todo';
 
 export interface GetAllTodosOptions {
   offset: number;

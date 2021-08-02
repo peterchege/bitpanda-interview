@@ -12,6 +12,8 @@
 </template>
 
 <script lang="ts">
+/* eslint-disable import/no-unresolved */
+
 import { defineComponent, PropType } from '@vue/composition-api';
 
 import { Todo } from '@/types/Todo';
