@@ -10,17 +10,7 @@
                @add-todo='createTodo($event)',
                @delete-todo='deleteTodoTask($event)',
                @update-todo='updateCompleteTask($event)')
-      .pagination
-        .pagination__button
-          img.pagination__img(
-            src="@/assets/img/icon-left-arrow.svg",
-            alt="arrow left",
-            )
-          span.pagination__divider
-          img.pagination__img(
-            src="@/assets/img/icon-right-arrow.svg",
-            alt="arrow right",
-            )
+      pagination-page(:pages='pages', @change='switchPage($event)')
 
 </template>
 
@@ -28,27 +18,35 @@
 import { defineComponent, ref } from '@vue/composition-api';
 
 import TodoApp from '../components/TodoApp.vue';
+import PaginationPage from '../components/Pagination.vue';
 import {
   createTodo, getAllTodos, updateTodo, deleteTodoItem,
 } from '../services/EventServices';
 import { Todo } from '../types/Todo';
+import { Pagination } from '@/types/Pagination';
+
 
 export default defineComponent({
   name: 'App',
-  components: { 'todo-app': TodoApp },
+  components: { 
+    'todo-app': TodoApp,
+    'pagination-page': PaginationPage },
   setup() {
     const todosList = ref<Todo[]>([]);
+    const pages = ref<Pagination>({} as Pagination);
 
     const getTodos = async (offset = 0, limit = 5, description?: string) => {
       const response = await getAllTodos({ offset, limit, description });
 
       todosList.value = response.items;
+      pages.value = response.meta;
       console.log(response);
     };
 
     return {
       todosList,
       getTodos,
+      pages
     };
   },
 
@@ -82,6 +80,9 @@ export default defineComponent({
         console.error(e);
       }
     },
+    switchPage(pagination: Pagination){
+      this.getTodos(pagination.offset, pagination.limit).catch((e) => console.error(e));
+    }
   },
 
 });
@@ -112,43 +113,6 @@ export default defineComponent({
 
       &::placeholder {
         color: var(--color-grey-5);
-      }
-    }
-  }
-
-  .pagination {
-    width: 100%;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-  &__button {
-    width: 4.5rem;
-    margin-top: var(--space-l);
-    padding: var(--space-xs);
-    display: flex;
-    justify-content: flex-end;
-    justify-content: space-around;
-    align-items: center;
-    border-radius: 0 0 var(--space-m) var(--space-m);
-    border-bottom: 1px solid var(--color-grey-3);
-    font-size: var(--space-xl);
-    color: var(--color-grey-5);
-    background-color: var(--color-grey-1);
-  }
-
-  &__divider {
-    width: 0;
-    height: var(--space-xl);
-    border-right: 2px solid get-color-opacity(var(--color-grey-5), 0.6);
-  }
-
-  &__img {
-    cursor: pointer;
-
-    &--disable {
-      opacity: 0.5;
-      cursor: not-allowed;
       }
     }
   }
