@@ -10,12 +10,13 @@
           @click="clearSearch",
           :class="{ inactive: fetchSearchQuery === '' }")
           img.close-icon(src="@/assets/img/icon-cross.svg")
-      todo-app(:todosList='todosList',
-               @add-todo='createTodoItem($event)',
-               @delete-todo='deleteTodoTask($event)',
-               @update-todo='updateCompleteTask($event)')
-      pagination-page(:pages='pages', @change='switchPage($event)')
-
+      div.error-msg(v-if="checkError") Ooops😔!! There is a network error. Check Your connection
+      div(v-else)
+        todo-app(:todosList='todosList',
+                  @add-todo='createTodoItem($event)',
+                  @delete-todo='deleteTodoTask($event)',
+                  @update-todo='updateCompleteTask($event)')
+        pagination-page(:pages='pages', @change='switchPage($event)')
 </template>
 
 <script lang="ts">
@@ -36,7 +37,7 @@ import { Pagination } from '@/types/Pagination';
 import { Todo } from '@/types/Todo';
 
 export default defineComponent({
-  name: 'App',
+  name: 'todo-page',
   components: {
     'todo-app': TodoApp,
     'pagination-page': PaginationPage,
@@ -45,6 +46,7 @@ export default defineComponent({
     const todosList = ref<Todo[]>([]);
     const pages = ref<Pagination>({} as Pagination);
     const fetchSearchQuery = ref<string>('');
+    const checkError = ref<string>('');
 
     const createTodoItem = async (description: string) => {
       try {
@@ -83,7 +85,8 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      getTodos().catch((e) => { console.error(e); });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      getTodos().catch((e) => { checkError.value = e; });
     });
 
     let debouncetimeId: number;
@@ -113,6 +116,7 @@ export default defineComponent({
       fetchSearchQuery,
       clearSearch,
       switchPage,
+      checkError,
 
     };
   },
@@ -154,4 +158,10 @@ export default defineComponent({
   pointer-events: none;
   opacity: .3;
 }
+
+.error-msg{
+    margin-top: 10%;
+    font-size: var(--space-l);
+    color: var(--color-red-1);
+  }
 </style>
