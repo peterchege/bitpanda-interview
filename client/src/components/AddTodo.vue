@@ -12,23 +12,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@vue/composition-api';
+import { defineComponent, ref } from '@vue/composition-api';
 
 export default defineComponent({
   name: 'add-todo',
-  data() {
+  setup(_, { emit }) {
+    const newTodoDescription = ref('');
+    const addTodoTask = () => {
+      if (newTodoDescription.value) {
+        emit('create', newTodoDescription.value);
+        newTodoDescription.value = '';
+      }
+    };
+
     return {
-      newTodoDescription: '',
+      newTodoDescription,
+      addTodoTask,
     };
   },
-  methods: {
-    addTodoTask() {
-      if (this.newTodoDescription) {
-        this.$emit('create', this.newTodoDescription);
-        this.newTodoDescription = '';
-      }
-    },
-  },
+
 });
 </script>
 

@@ -10,35 +10,71 @@
           @click="clearSearch",
           :class="{ inactive: fetchSearchQuery === '' }")
           img.close-icon(src="@/assets/img/icon-cross.svg")
-      todo-app(:todosList='todosList',
-               @add-todo='createTodo($event)',
-               @delete-todo='deleteTodoTask($event)',
-               @update-todo='updateCompleteTask($event)')
-      pagination-page(:pages='pages', @change='switchPage($event)')
-
+      div.error-msg(v-if="checkError") Ooops😔!! There is a network error. Check Your connection
+      div(v-else)
+        todo-app(:todosList='todosList',
+                  @add-todo='createTodoItem($event)',
+                  @delete-todo='deleteTodoTask($event)',
+                  @update-todo='updateCompleteTask($event)')
+        pagination-page(:pages='pages', @change='switchPage($event)')
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from '@vue/composition-api';
+/* eslint-disable import/no-unresolved */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable consistent-return */
 
-import TodoApp from '../components/TodoApp.vue';
-import PaginationPage from '../components/Pagination.vue';
+import {
+  defineComponent, onMounted, ref, watch,
+} from '@vue/composition-api';
+
+import PaginationPage from '@/components/Pagination.vue';
+import TodoApp from '@/components/TodoApp.vue';
 import {
   createTodo, getAllTodos, updateTodo, deleteTodoItem,
-} from '../services/EventServices';
-import { Todo } from '../types/Todo';
+} from '@/services/EventServices';
 import { Pagination } from '@/types/Pagination';
-
+import { Todo } from '@/types/Todo';
 
 export default defineComponent({
-  name: 'App',
-  components: { 
+  name: 'todo-page',
+  components: {
     'todo-app': TodoApp,
-    'pagination-page': PaginationPage },
+    'pagination-page': PaginationPage,
+  },
   setup() {
     const todosList = ref<Todo[]>([]);
     const pages = ref<Pagination>({} as Pagination);
     const fetchSearchQuery = ref<string>('');
+    const checkError = ref<string>('');
+
+    const createTodoItem = async (description: string) => {
+      try {
+        const createTodoTask = await createTodo(description);
+
+        todosList.value.push(createTodoTask);
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    };
+
+    const updateCompleteTask = async (todo: Todo) => {
+      try {
+        await updateTodo(todo);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const deleteTodoTask = async (todo: Todo) => {
+      try {
+        await deleteTodoItem(todo);
+        todosList.value = todosList.value.filter((task) => task._id !== todo._id);
+      } catch (e) {
+        console.error(e);
+      }
+    };
 
     const getTodos = async (offset = 0, limit = 5, description?: string) => {
       const response = await getAllTodos({ offset, limit, description });
@@ -47,6 +83,11 @@ export default defineComponent({
       pages.value = response.meta;
       console.log(response);
     };
+
+    onMounted(() => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      getTodos().catch((e) => { checkError.value = e; });
+    });
 
     let debouncetimeId: number;
 
@@ -58,53 +99,26 @@ export default defineComponent({
     });
 
     const clearSearch = () => {
-      fetchSearchQuery.value='';
-    }
+      fetchSearchQuery.value = '';
+    };
 
+    const switchPage = (pagination: Pagination) => {
+      getTodos(pagination.offset, pagination.limit).catch((e) => console.error(e));
+    };
 
     return {
       todosList,
+      createTodoItem,
       getTodos,
+      deleteTodoTask,
+      updateCompleteTask,
       pages,
       fetchSearchQuery,
-      clearSearch
-      
+      clearSearch,
+      switchPage,
+      checkError,
+
     };
-  },
-
-  mounted() {
-    this.getTodos().catch((e) => { console.error(e); });
-  },
-
-  methods: {
-    async createTodo(description: string) {
-      try {
-        const createTodoTask = await createTodo(description);
-
-        this.todosList.push(createTodoTask);
-      } catch (e) {
-        console.error(e);
-        return false;
-      }
-    },
-    async updateCompleteTask(todo: Todo) {
-      try {
-        await updateTodo(todo);
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    async deleteTodoTask(todo: Todo) {
-      try {
-        await deleteTodoItem(todo);
-        this.todosList = this.todosList.filter((t) => t._id !== todo._id);
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    switchPage(pagination: Pagination){
-      this.getTodos(pagination.offset, pagination.limit).catch((e) => console.error(e));
-    }
   },
 
 });
@@ -144,4 +158,10 @@ export default defineComponent({
   pointer-events: none;
   opacity: .3;
 }
+
+.error-msg{
+    margin-top: 10%;
+    font-size: var(--space-l);
+    color: var(--color-red-1);
+  }
 </style>

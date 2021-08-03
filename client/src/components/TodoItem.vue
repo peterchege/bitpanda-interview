@@ -14,7 +14,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from '@vue/composition-api';
+/* eslint-disable object-curly-newline */
+/* eslint-disable import/no-unresolved */
+
+import { computed, defineComponent, PropType, toRefs } from '@vue/composition-api';
 import moment from 'moment';
 
 import { Todo } from '@/types/Todo';
@@ -24,31 +27,34 @@ import Checkbox from './Checkbox.vue';
 export default defineComponent({
   name: 'todo-item',
   props: { todo: { type: Object as PropType<Todo>, required: true } },
-  computed: {
-    markAsDone(): Record<string, boolean> {
-      return {
-        'todo-item-markCompleted': this.todo.done,
-      };
-    },
-    createdTime(): number {
+  setup(props, { emit }) {
+    const { todo } = toRefs(props);
+
+    const markAsDone = computed((): Record<string, boolean> => ({
+      'todo-item-markCompleted': todo.value.done,
+    }));
+
+    const createdTime = computed((): number => {
       const startTime = moment(Date.now());
-      const createdAt = moment(this.todo.createdAt);
+      const createdAt = moment(todo.value.createdAt);
       const timeElapsed = startTime.diff(createdAt, 'minute');
 
       return timeElapsed;
-    },
-  },
-  data() {
-    return {};
+    });
+
+    const updateCompleteTodoTask = () => {
+      todo.value.done = !todo.value.done;
+      return emit('update-todo', todo.value);
+    };
+
+    return {
+      markAsDone,
+      createdTime,
+      updateCompleteTodoTask,
+    };
   },
   components: {
     Checkbox,
-  },
-  methods: {
-    updateCompleteTodoTask(todo: Todo) {
-      todo.done = !todo.done;
-      this.$emit('update-todo', todo);
-    },
   },
 
 });
